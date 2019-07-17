@@ -1,1 +1,1 @@
-# cont_mq
+# MQ continous adoption
