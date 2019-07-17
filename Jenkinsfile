@@ -54,7 +54,7 @@ podTemplate(
             // def slackResponse = slackSend(channel: "k8s_cont-adoption", message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> Has been started.")
 
             stage ('Extract') {
-	            try {
+              try {
                   checkout scm
                   fullCommitID = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
                   gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
@@ -75,11 +75,11 @@ podTemplate(
 	          }
             stage('Build'){
               try {
-                  // checkout scm
-                  container('docker') {
-		              echo 'Set Base Image'
-		              sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
-		              sh "cat Dockerfile"
+                // checkout scm
+                container('docker') {
+                  echo 'Set Base Image'
+                  sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
+                  sh "cat Dockerfile"
                   echo 'Start Building Image'
                   imageTag = ${basetag}
                   def buildCommand = "docker build -t ${image}:${imageTag} "
@@ -102,14 +102,14 @@ podTemplate(
                   echo "Docker build command: ${buildCommand}"
                   sh buildCommand
                   if (registry) {
-		                 // sh "docker login -u=${dockerUser} -p=${dockerPassword} ${registry}"
+                     // sh "docker login -u=${dockerUser} -p=${dockerPassword} ${registry}"
                      echo "Tagging image ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
                      sh "docker tag ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
                      echo 'Pushing to Docker registry'
                      sh "docker push ${registry}${namespace}/${image}:${imageTag}"
                      'Done pushing to Docker registry'
                   }
-		            }
+                }
               } catch(Exception ex) {
                 print "Error in Docker build: " + ex.toString()
               }
