@@ -8,9 +8,9 @@ def build = (env.BUILD ?: "true").toBoolean()
 def deploy = (env.DEPLOY ?: "true").toBoolean()
 def test = (env.TEST ?: "true").toBoolean()
 
-def image = (env.IMAGE ?: "cont-my").trim()
+def image = (env.IMAGE ?: "cont-mq").trim()
 def baseimage = (env.BASEIMAGE ?: "ibmcom/mq").trim()
-def baseitag = (env.BASETAG ?: "9.1.1.0").trim()
+def basetag = (env.BASETAG ?: "9.1.1.0").trim()
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
