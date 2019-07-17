@@ -10,7 +10,7 @@ def test = (env.TEST ?: "true").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
 def baseimage = (env.BASEIMAGE ?: "ibmcom/mq").trim()
-def basetag = (env.BASETAG ?: "9.1.2.0").trim()
+def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
@@ -204,7 +204,7 @@ podTemplate(
                   } else {
 		                // The release does not exist, proceed and deploy a new release
                     echo "Attempting to deploy the test release"
-                    def deployCommand = "helm install ${realChartFolder} --wait --set image.repository=${image} --set image.tag=${imageTag} --values pipeline.yaml --namespace ${namespace} --name ${tempHelmRelease}"
+                    def deployCommand = "helm install ${realChartFolder} --wait --set test=true --values pipeline.yaml --namespace ${namespace} --name ${tempHelmRelease}"
                     if (fileExists("chart/overrides.yaml")) {
                       deployCommand += " --values chart/overrides.yaml"
                     }
