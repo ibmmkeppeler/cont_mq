@@ -1,0 +1,18 @@
+apiVersion: v1
+appVersion: 9.1.2.0
+description: IBM MQ queue manager
+icon: https://raw.githubusercontent.com/IBM/charts/master/logo/ibm-mq-blue-icon.png
+keywords:
+- amd64
+- ppc64le
+- s390x
+- Limited
+- ICP
+- ICPRHOCP
+- IKS
+- message queue
+- Integration
+kubeVersion: '>=1.11.0'
+name: cont-mq
+tillerVersion: '>=2.9.1'
+version: 1.0.0

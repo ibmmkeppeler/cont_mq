@@ -21,7 +21,7 @@ def namespace = (env.NAMESPACE ?: "default").trim()
 def serviceAccountName = (env.SERVICE_ACCOUNT_NAME ?: "default").trim()
 def chartFolder = (env.CHART_FOLDER ?: "chart").trim()
 def helmSecret = (env.HELM_SECRET ?: "helm-secret").trim()
-def helmTlsOptions = " --tls --tls-ca-cert=/msb_helm_sec/ca.pem --tls-cert=/msb_helm_sec/cert.pem --tls-key=/msb_helm_sec/key.pem " 
+def helmTlsOptions = " --tls --tls-ca-cert=/msb_helm_sec/ca.pem --tls-cert=/msb_helm_sec/cert.pem --tls-key=/msb_helm_sec/key.pem "
 
 def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 if (registrySecret) {
@@ -48,7 +48,7 @@ podTemplate(
             def previousCommit
             def gitCommitMessage
             def fullCommitID
-	    
+
 	    def imageTag = null
 	    def helmInitialized = false // Lazily initialize Helm but only once
             // def slackResponse = slackSend(channel: "k8s_cont-adoption", message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> Has been started.")
@@ -58,10 +58,10 @@ podTemplate(
                   checkout scm
                   fullCommitID = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
                   gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                  previousCommitStatus = sh(script: 'git rev-parse -q --short HEAD~1', returnStatus: true)      
+                  previousCommitStatus = sh(script: 'git rev-parse -q --short HEAD~1', returnStatus: true)
                   // If no previous commit is found, below commands need not run but build should continue
                   // Only run when a previous commit exists to avoid pipeline fail on exit code
-                  if (previousCommitStatus == 0){ 
+                  if (previousCommitStatus == 0){
                      previousCommit = sh(script: 'git rev-parse -q --short HEAD~1', returnStdout: true).trim()
                      echo "Previous commit exists: ${previousCommit}"
                   }
@@ -86,7 +86,7 @@ podTemplate(
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
                   // def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
                   // buildCommand += "--label org.label-schema.vcs-url=\"${scmUrl}\" "
-                  buildCommand += "--label org.label-schema.vcs-ref=\"${gitCommit}\" "  
+                  buildCommand += "--label org.label-schema.vcs-ref=\"${gitCommit}\" "
                   buildCommand += "--label org.label-schema.name=\"${image}\" "
                   def buildDate = sh(returnStdout: true, script: "date -Iseconds").trim()
                   buildCommand += "--label org.label-schema.build-date=\"${buildDate}\" "
@@ -116,13 +116,13 @@ podTemplate(
                 print "Error in Docker build: " + ex.toString()
               }
             }
-	    
+
 	    def realChartFolder = null
             def testsAttempted = false
-	    
+
             if (fileExists(chartFolder)) {
                // find the likely chartFolder location
-               realChartFolder = getChartFolder('chart/hello', chartFolder)
+               realChartFolder = getChartFolder('chart/cont-mq', chartFolder)
                def yamlContent = "image:"
                yamlContent += "\n  repository: ${registry}${namespace}/${image}"
                if (imageTag) yamlContent += "\n  tag: \\\"${imageTag}\\\""
@@ -145,7 +145,7 @@ podTemplate(
 /*------------------------
                     def NSCreationAttempt = sh(returnStatus: true, script: "kubectl create namespace ${namespace} > ns_creation_attempt.txt")
                     if (NSCreationAttempt != 0) {
-                      echo "Warning, did not create the test namespace successfully, error code is: ${NSCreationAttempt}"		
+                      echo "Warning, did not create the test namespace successfully, error code is: ${NSCreationAttempt}"
                     }
                     if (registrySecret) {
 		                // Give access to the private registry
@@ -155,7 +155,7 @@ podTemplate(
 ------------------------*/
 	                }
                 }
-	       
+
                 if (!helmInitialized) {
 	                printTime("Init helm")
                   initalizeHelm ()
@@ -163,7 +163,7 @@ podTemplate(
 	                printTime("Done with init helm")
                 }
 
-	       
+
                 container ('helm') {
 	                // Check if the release exists at all.
                   isReleaseExists = sh(script: "helm list -q --namespace ${namespace} ${helmTlsOptions} | tr '\\n' ','", returnStdout: true)
@@ -196,17 +196,17 @@ podTemplate(
 		                  echo "UPGRADING COMMAND: ${upgradeCommand}"
                       testUpgradeAttempt = sh(script: "${upgradeCommand} > upgrade_attempt.txt", returnStatus: true)
                       if (testUpgradeAttempt != 0) {
-                        echo "Warning, did not upgrade the test release into the test namespace successfully, error code is: ${testUpgradeAttempt}" 
+                        echo "Warning, did not upgrade the test release into the test namespace successfully, error code is: ${testUpgradeAttempt}"
                         echo "This build will be marked as a failure: halting after the deletion of the test namespace."
                       } else {
 		                  // slackSend (channel: slackResponse.threadId, color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> upgraded successfully.")
                       }
-                      printFromFile("upgrade_attempt.txt") 
+                      printFromFile("upgrade_attempt.txt")
             		    }
                   } else {
 		                // The release does not exist, proceed and deploy a new release
                     echo "Attempting to deploy the test release"
-                    def deployCommand = "helm install ${realChartFolder} --wait --set test=true --values pipeline.yaml --namespace ${namespace} --name ${tempHelmRelease}"
+                    def deployCommand = "helm install ${realChartFolder} --wait --set image.repository=${image} --set image.tag=${imageTag} --values pipeline.yaml --namespace ${namespace} --name ${tempHelmRelease}"
                     if (fileExists("chart/overrides.yaml")) {
                       deployCommand += " --values chart/overrides.yaml"
                     }
@@ -218,7 +218,7 @@ podTemplate(
 		                // slackSend (channel: "k8s_cont-adoption", color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> deployed successfully.")
 
                     if (testDeployAttempt != 0) {
-                       echo "Warning, did not deploy the test release into the test namespace successfully, error code is: ${testDeployAttempt}" 
+                       echo "Warning, did not deploy the test release into the test namespace successfully, error code is: ${testDeployAttempt}"
                        echo "This build will be marked as a failure: halting after the deletion of the test namespace."
                     }
                     printFromFile("deploy_attempt.txt")
@@ -230,7 +230,7 @@ podTemplate(
 	          }
           }
         }
-      
+
 def printTime(String message) {
    time = new Date().format("ddMMyy.HH:mm.ss", TimeZone.getTimeZone('Europe/Amsterdam'))
    println "Timing, $message: $time"
