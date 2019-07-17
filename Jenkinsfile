@@ -81,6 +81,8 @@ podTemplate(
                   sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
+echo "BaseTag: ${basetag}"
+echo "Image: ${image}:${imageTag}"
                   imageTag = ${basetag}
                   def buildCommand = "docker build -t ${image}:${imageTag} "
 echo "Step 1"
