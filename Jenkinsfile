@@ -82,7 +82,7 @@ podTemplate(
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
 echo "BaseTag: ${basetag}"
-                  imageTag = ${basetag}
+                  imageTag = "${basetag}"
 echo "Image: ${image}:${imageTag}"
                   def buildCommand = "docker build -t ${image}:${imageTag} "
 echo "Step 1"
