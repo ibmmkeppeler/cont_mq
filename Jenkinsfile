@@ -81,27 +81,19 @@ podTemplate(
                   sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
-echo "BaseTag: ${basetag}"
                   imageTag = "${basetag}"
-echo "Image: ${image}:${imageTag}"
                   def buildCommand = "docker build -t ${image}:${imageTag} "
-echo "Step 1"
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
                   // def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
                   // buildCommand += "--label org.label-schema.vcs-url=\"${scmUrl}\" "
-echo "Step 2"
                   buildCommand += "--label org.label-schema.vcs-ref=\"${gitCommit}\" "
-echo "Step 3"
                   buildCommand += "--label org.label-schema.name=\"${image}\" "
-echo "Step 4"
                   def buildDate = sh(returnStdout: true, script: "date -Iseconds").trim()
                   buildCommand += "--label org.label-schema.build-date=\"${buildDate}\" "
-echo "Step 5"
                   if (alwaysPullImage) {
                      buildCommand += " --pull=true"
                   }
                   buildCommand += " ."
-echo "Step 6"
                   if (registrySecret) {
                      sh "ln -s -f /msb_reg_sec/.dockercfg /home/jenkins/.dockercfg"
                      sh "mkdir -p /home/jenkins/.docker"
