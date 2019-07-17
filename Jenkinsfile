@@ -32,7 +32,7 @@ if (helmSecret) {
 }
 
 podTemplate(
-    label: 'test',
+    label: 'mq',
     containers: [
         containerTemplate(name: 'docker', image: 'docker:18.06.1-ce', command: 'cat', ttyEnabled: true,
             envVars: [
