@@ -93,15 +93,13 @@ podTemplate(
                   if (alwaysPullImage) {
                      buildCommand += " --pull=true"
                   }
-                  if (previousCommit) {
-                     buildCommand += " --cache-from ${registry}${image}:${previousCommit}"
-                  }
                   buildCommand += " ."
                   if (registrySecret) {
                      sh "ln -s -f /msb_reg_sec/.dockercfg /home/jenkins/.dockercfg"
                      sh "mkdir -p /home/jenkins/.docker"
                      sh "ln -s -f /msb_reg_sec/.dockerconfigjson /home/jenkins/.docker/config.json"
                   }
+                  echo "Docker build command: ${buildCommand}"
                   sh buildCommand
                   if (registry) {
 		                 // sh "docker login -u=${dockerUser} -p=${dockerPassword} ${registry}"
