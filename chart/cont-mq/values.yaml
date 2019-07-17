@@ -108,11 +108,11 @@ queueManager:
   dev:
     secret:
       # name is the secret that contains the 'admin' user password and optionally the 'app' user password to use for messaging
-      name:
+      name: mq-secret
       # adminPasswordKey is the secret key that contains the 'admin' user password
       adminPasswordKey: admin
       # appPasswordKey is the secret key that contains the 'app' user password
-      appPasswordKey: password
+      appPasswordKey: user
 
 # pki is used to supply certificates, that are stored in k8s secrets, for use with the webconsole and queue manager.
 # Must be supplied as an array of yaml objects in the following format:
