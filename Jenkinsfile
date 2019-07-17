@@ -82,8 +82,8 @@ podTemplate(
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
 echo "BaseTag: ${basetag}"
-echo "Image: ${image}:${imageTag}"
                   imageTag = ${basetag}
+echo "Image: ${image}:${imageTag}"
                   def buildCommand = "docker build -t ${image}:${imageTag} "
 echo "Step 1"
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
