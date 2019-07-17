@@ -78,7 +78,7 @@ podTemplate(
                   // checkout scm
                   container('docker') {
 		              echo 'Set Base Image'
-		              sh "sed -ie 's/^FROM.*/FROM ${baseimage}:${basetag}/g' Dockerfile"
+		              sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
 		              sh "cat Dockerfile"
                   echo 'Start Building Image'
                   imageTag = ${basetag}
