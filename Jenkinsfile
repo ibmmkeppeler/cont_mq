@@ -26,7 +26,7 @@ def mqLicense = (env.MQLICENSE ?: "accept").trim()
 def serviceType = "NodePort"
 def queueManagerName = "QM1"
 def mqSecret = "mq-secret"
-def multiInstance = "true"
+def multiInstance = ("true").toBoolean()
 
 def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 if (registrySecret) {
@@ -137,7 +137,7 @@ podTemplate(
                if (queueManagerName) {
                  yamlContent += "\nqueueManager:"
                  yamlContent += "\n  name: \\\"${queueManagerName}\\\""
-                 if (multiInstance) yamlContent += "\n  multiInstance: \\\"${multiInstance}\\\""
+                 if (multiInstance) yamlContent += "\n  multiInstance: ${multiInstance}
                  if (mqSecret) {
                    yamlContent += "\n  dev:"
                    yamlContent += "\n    secret:"
