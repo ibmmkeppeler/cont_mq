@@ -11,6 +11,7 @@ def test = (env.TEST ?: "true").toBoolean()
 def image = (env.IMAGE ?: "cont-mq").trim()
 def baseimage = (env.BASEIMAGE ?: "ibmcom/mq").trim()
 def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
+def newtag = "9.1.2.0-NEW"
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
@@ -18,6 +19,7 @@ def registrySecret = (env.REGISTRY_SECRET ?: "registrysecret").trim()
 def namespace = (env.NAMESPACE ?: "default").trim()
 def serviceAccountName = (env.SERVICE_ACCOUNT_NAME ?: "default").trim()
 def chartFolder = (env.CHART_FOLDER ?: "chart").trim()
+def userChartFolder = (env.USERCHART_FOLDER ?: "chart/cont-mq").trim()
 def helmSecret = (env.HELM_SECRET ?: "helm-secret").trim()
 def helmTlsOptions = " --tls --tls-ca-cert=/msb_helm_sec/ca.pem --tls-cert=/msb_helm_sec/cert.pem --tls-key=/msb_helm_sec/key.pem "
 
@@ -87,6 +89,7 @@ podTemplate(
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
                   imageTag = "${basetag}"
+                  if (newtag) imageTag = "${newtag}"
                   def buildCommand = "docker build -t ${image}:${imageTag} "
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
                   // def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
@@ -125,7 +128,7 @@ podTemplate(
 
             if (fileExists(chartFolder)) {
                // find the likely chartFolder location
-               realChartFolder = getChartFolder('chart/cont-mq', chartFolder)
+               realChartFolder = getChartFolder(userChartFolder, chartFolder)
                def yamlContent = "image:"
                yamlContent += "\n  repository: ${registry}${namespace}/${image}"
                if (imageTag) yamlContent += "\n  tag: \\\"${imageTag}\\\""
@@ -207,7 +210,9 @@ podTemplate(
                     } else {
 		                  echo "RELEASE IS RUNNING"
                       // The release is in RUNNING state. Attempt to upgrade
-		                  getValues = sh (script: "helm get values ${tempHelmRelease} -output yaml ${helmTlsOptions} > values.yaml", returnStatus: true)
+		                  getValues = sh (script: "helm get values ${tempHelmRelease} --output yaml ${helmTlsOptions} > values.yaml", returnStatus: true)
+                      sh "sed -ie '|repository:.*|repository: ${registry}${namespace}/${image}|g' values.yaml" 
+                      sh "sed -ie '|tag:.*|tag: ${imageTag}|g' values.yaml" 
                       def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --wait --values values.yaml --namespace ${namespace}"
                       if (fileExists("chart/overrides.yaml")) {
                         upgradeCommand += " --values chart/overrides.yaml"
@@ -217,6 +222,7 @@ podTemplate(
                         upgradeCommand += helmTlsOptions
                       }
 		                  echo "UPGRADING COMMAND: ${upgradeCommand}"
+                      /*------------------------
                       testUpgradeAttempt = sh(script: "${upgradeCommand} > upgrade_attempt.txt", returnStatus: true)
                       if (testUpgradeAttempt != 0) {
                         echo "Warning, did not upgrade the test release into the test namespace successfully, error code is: ${testUpgradeAttempt}"
@@ -225,6 +231,7 @@ podTemplate(
 		                  // slackSend (channel: slackResponse.threadId, color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> upgraded successfully.")
                       }
                       printFromFile("upgrade_attempt.txt")
+                      ------------------------*/
             		    }
                   } else {
 		                // The release does not exist, proceed and deploy a new release
