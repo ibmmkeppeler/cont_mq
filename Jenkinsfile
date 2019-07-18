@@ -80,6 +80,7 @@ podTemplate(
                   print "Error in Extract: " + ex.toString()
               }
 	          }
+            if (build) {
             stage('Build'){
               try {
                 // checkout scm
@@ -122,6 +123,7 @@ podTemplate(
                 error("Error in Docker build")
               }
             }
+            }
 
             def realChartFolder = null
             def testsAttempted = false
@@ -150,6 +152,7 @@ podTemplate(
                sh "echo \"${yamlContent}\" > pipeline.yaml"
             }
 
+            if (deploy) {
 	          stage ('Deploy') {
               try {
                 echo 'Deploy helm chart'
@@ -257,6 +260,7 @@ podTemplate(
                 print "Error in helm Deployment: " + ex.toString()
 	            }
 	          }
+            }
           }
         }
 
