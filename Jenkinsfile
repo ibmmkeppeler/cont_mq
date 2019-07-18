@@ -222,6 +222,7 @@ podTemplate(
                         upgradeCommand += helmTlsOptions
                       }
 		                  echo "UPGRADING COMMAND: ${upgradeCommand}"
+                      printFromFile("values.yaml")
                       /*------------------------
                       testUpgradeAttempt = sh(script: "${upgradeCommand} > upgrade_attempt.txt", returnStatus: true)
                       if (testUpgradeAttempt != 0) {
