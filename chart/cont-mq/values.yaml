@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # license must be set to "accept" to accept the terms of the IBM license
-license: "accept"
+license: "not accepted"
 
 image:
   # repository is the container repository to use, which must contain IBM MQ Advanced for Developers
@@ -101,14 +101,14 @@ security:
 # queueManager section specifies settings for the MQ Queue Manager
 queueManager:
   # name allows you to specify the name to use for the queue manager.  Defaults to the Helm release name.
-  name: QM1
+  name:
   # multiInstance specifies whether to run in multi-instance mode with an active and standby queue manager
   multiInstance: false
   # dev section specifies settings for the MQ developer defaults available in the MQ Advanced for Developers image.
   dev:
     secret:
       # name is the secret that contains the 'admin' user password and optionally the 'app' user password to use for messaging
-      name: mq-secret
+      name:
       # adminPasswordKey is the secret key that contains the 'admin' user password
       adminPasswordKey: admin
       # appPasswordKey is the secret key that contains the 'app' user password

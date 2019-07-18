@@ -15,13 +15,18 @@ def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_I
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
 def registrySecret = (env.REGISTRY_SECRET ?: "registrysecret").trim()
-// def dockerUser = (env.DOCKER_USER ?: "admin").trim()
-// def dockerPassword = (env.DOCKER_PASSWORD ?: "5e914c585c2b51edfd1213f059dd38a3").trim()
 def namespace = (env.NAMESPACE ?: "default").trim()
 def serviceAccountName = (env.SERVICE_ACCOUNT_NAME ?: "default").trim()
 def chartFolder = (env.CHART_FOLDER ?: "chart").trim()
 def helmSecret = (env.HELM_SECRET ?: "helm-secret").trim()
 def helmTlsOptions = " --tls --tls-ca-cert=/msb_helm_sec/ca.pem --tls-cert=/msb_helm_sec/cert.pem --tls-key=/msb_helm_sec/key.pem "
+
+//mq options
+def mqLicense = (env.MQLICENSE ?: "accept").trin()
+def serviceType = "NodePort"
+def queueManagerName = "QM1"
+def mqSecret = "mq-secret"
+def multiInstance = "true"
 
 def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 if (registrySecret) {
@@ -102,7 +107,6 @@ podTemplate(
                   echo "Docker build command: ${buildCommand}"
                   sh buildCommand
                   if (registry) {
-                     // sh "docker login -u=${dockerUser} -p=${dockerPassword} ${registry}"
                      echo "Tagging image ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
                      sh "docker tag ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
                      echo 'Pushing to Docker registry'
@@ -112,10 +116,11 @@ podTemplate(
                 }
               } catch(Exception ex) {
                 print "Error in Docker build: " + ex.toString()
+                error("Error in Docker build")
               }
             }
 
-	    def realChartFolder = null
+            def realChartFolder = null
             def testsAttempted = false
 
             if (fileExists(chartFolder)) {
@@ -124,6 +129,21 @@ podTemplate(
                def yamlContent = "image:"
                yamlContent += "\n  repository: ${registry}${namespace}/${image}"
                if (imageTag) yamlContent += "\n  tag: \\\"${imageTag}\\\""
+               if (mqLicense) yamlContent += "\nlicense: \\\"${mqLicense}\\\""
+               if (serviceType) {
+                 yamlContent += "\nservice:"
+                 yamlContent += "\n  type: \\\"${serviceType}\\\""
+               }
+               if (queueManagerName) {
+                 yamlContent += "\nqueueManager:"
+                 yamlContent += "\n  name: \\\"${queueManagerName}\\\""
+                 if (multiInstance) yamlContent += "\n  multiInstance: \\\"${multiInstance}\\\""
+                 if (mqSecret) {
+                   yamlContent += "\n  dev:"
+                   yamlContent += "\n    secret:"
+                   yamlContent += "\n      name: \\\"${mqSecret}\\\""
+                 }
+               }
                sh "echo \"${yamlContent}\" > pipeline.yaml"
             }
 
@@ -138,6 +158,11 @@ podTemplate(
 	                NSExists = sh(returnStatus: true, script: "kubectl get namespace ${namespace}")
 	                if (NSExists == 0) {
 	                  echo "Namespace ${namespace} exists"
+                    secretExists = sh(returnStatus: true, script: "kubectl get secret ${mqSecret} -n ${namespace}")
+                    if(secretExists != 0) {
+                      echo "Warning Secret ${mqSecret} does not exist"
+                      error("MQ secret with the name ${mqSecret} does not exist in namespace ${namespace}")
+                    }
 	                } else {
 		                echo "Warning, Namespace ${namespace} does not exist, need to create it"
 /*------------------------
