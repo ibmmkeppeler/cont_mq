@@ -23,10 +23,10 @@ def helmTlsOptions = " --tls --tls-ca-cert=/msb_helm_sec/ca.pem --tls-cert=/msb_
 
 //mq options
 def mqLicense = (env.MQLICENSE ?: "accept").trin()
-def serviceType = "NodePort"
-def queueManagerName = "QM1"
-def mqSecret = "mq-secret"
-def multiInstance = "true"
+def serviceType = ("NodePort").trim()
+def queueManagerName = ("QM1").trim()
+def mqSecret = ("mq-secret").trim()
+def multiInstance = ("true").trim()
 
 def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 if (registrySecret) {
@@ -149,7 +149,7 @@ podTemplate(
 
 	          stage ('Deploy') {
               try {
-                echo'Deploy helm chart'
+                echo 'Deploy helm chart'
                 echo "testing against namespace " + namespace
                 String tempHelmRelease = (image + "-" + namespace)
 
