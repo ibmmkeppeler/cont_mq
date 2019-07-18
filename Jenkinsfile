@@ -22,7 +22,7 @@ def helmSecret = (env.HELM_SECRET ?: "helm-secret").trim()
 def helmTlsOptions = " --tls --tls-ca-cert=/msb_helm_sec/ca.pem --tls-cert=/msb_helm_sec/cert.pem --tls-key=/msb_helm_sec/key.pem "
 
 //mq options
-def mqLicense = (env.MQLICENSE ?: "accept").trin()
+def mqLicense = (env.MQLICENSE ?: "accept")trim()
 def serviceType = ("NodePort").trim()
 def queueManagerName = ("QM1").trim()
 def mqSecret = ("mq-secret").trim()
