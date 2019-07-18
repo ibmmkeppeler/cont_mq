@@ -223,7 +223,6 @@ podTemplate(
                       }
 		                  echo "UPGRADING COMMAND: ${upgradeCommand}"
                       printFromFile("values.yaml")
-                      /*------------------------
                       testUpgradeAttempt = sh(script: "${upgradeCommand} > upgrade_attempt.txt", returnStatus: true)
                       if (testUpgradeAttempt != 0) {
                         echo "Warning, did not upgrade the test release into the test namespace successfully, error code is: ${testUpgradeAttempt}"
@@ -232,7 +231,6 @@ podTemplate(
 		                  // slackSend (channel: slackResponse.threadId, color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> upgraded successfully.")
                       }
                       printFromFile("upgrade_attempt.txt")
-                      ------------------------*/
             		    }
                   } else {
 		                // The release does not exist, proceed and deploy a new release
