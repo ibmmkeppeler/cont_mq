@@ -22,7 +22,7 @@ def helmSecret = (env.HELM_SECRET ?: "helm-secret").trim()
 def helmTlsOptions = " --tls --tls-ca-cert=/msb_helm_sec/ca.pem --tls-cert=/msb_helm_sec/cert.pem --tls-key=/msb_helm_sec/key.pem "
 
 //mq options
-def mqLicense = (env.MQLICENSE ?: "accept")trim()
+def mqLicense = (env.MQLICENSE ?: "accept").trim()
 def serviceType = "NodePort"
 def queueManagerName = "QM1"
 def mqSecret = "mq-secret"
@@ -116,7 +116,7 @@ podTemplate(
                 }
               } catch(Exception ex) {
                 print "Error in Docker build: " + ex.toString()
-                //error("Error in Docker build")
+                error("Error in Docker build")
               }
             }
 
@@ -161,7 +161,7 @@ podTemplate(
                     secretExists = sh(returnStatus: true, script: "kubectl get secret ${mqSecret} -n ${namespace}")
                     if(secretExists != 0) {
                       echo "Warning Secret ${mqSecret} does not exist"
-                      //error("MQ secret with the name ${mqSecret} does not exist in namespace ${namespace}")
+                      error("MQ secret with the name ${mqSecret} does not exist in namespace ${namespace}")
                     }
 	                } else {
 		                echo "Warning, Namespace ${namespace} does not exist, need to create it"
