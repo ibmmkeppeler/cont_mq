@@ -217,7 +217,7 @@ podTemplate(
 		                  getValues = sh (script: "helm get values ${tempHelmRelease} --output yaml ${helmTlsOptions} > values.yaml", returnStatus: true)
                       sh "sed -ie 's|repository:.*|repository: ${registry}${namespace}/${image}|g' values.yaml" 
                       sh "sed -ie 's|tag:.*|tag: ${imageTag}|g' values.yaml" 
-                      def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --wait --values values.yaml --namespace ${namespace}"
+                      def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --values values.yaml --namespace ${namespace}"
                       if (fileExists("chart/overrides.yaml")) {
                         upgradeCommand += " --values chart/overrides.yaml"
                       }
