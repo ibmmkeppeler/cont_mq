@@ -91,12 +91,7 @@ podTemplate(
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
                   imageTag = "${basetag}"
-                  if (newtag) {
-                    imageTag = "${newtag}"
-                    print "-----------------------------------------------------------"
-                    print "*** newtag ${newtag} ***"
-                    print "-----------------------------------------------------------"
-                  }
+                  if (newtag) imageTag = "${newtag}"
                   def buildCommand = "docker build -t ${image}:${imageTag} "
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
                   // def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
@@ -115,7 +110,7 @@ podTemplate(
                      sh "ln -s -f /msb_reg_sec/.dockerconfigjson /home/jenkins/.docker/config.json"
                   }
                   echo "Docker build command: ${buildCommand}"
-                  // sh buildCommand
+                  sh buildCommand
                   if (registry) {
                      echo "Tagging image ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
                      sh "docker tag ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
@@ -221,6 +216,7 @@ podTemplate(
                       // The release is in RUNNING state. Attempt to upgrade
 		                  getValues = sh (script: "helm get values ${tempHelmRelease} --output yaml ${helmTlsOptions} > values.yaml", returnStatus: true)
                       sh "sed -ie 's|repository:.*|repository: ${registry}${namespace}/${image}|g' values.yaml" 
+                      if (newtag) imageTag = "${newtag}"
                       sh "sed -ie 's|tag:.*|tag: ${imageTag}|g' values.yaml" 
                       def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --values values.yaml --namespace ${namespace}"
                       if (fileExists("chart/overrides.yaml")) {
