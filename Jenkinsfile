@@ -91,7 +91,12 @@ podTemplate(
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
                   imageTag = "${basetag}"
-                  if (newtag) imageTag = "${newtag}"
+                  if (newtag) {
+                    imageTag = "${newtag}"
+                    print "-----------------------------------------------------------"
+                    print "*** newtag ${newtag} ***"
+                    print "-----------------------------------------------------------"
+                  }
                   def buildCommand = "docker build -t ${image}:${imageTag} "
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
                   // def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
@@ -110,7 +115,7 @@ podTemplate(
                      sh "ln -s -f /msb_reg_sec/.dockerconfigjson /home/jenkins/.docker/config.json"
                   }
                   echo "Docker build command: ${buildCommand}"
-                  sh buildCommand
+                  // sh buildCommand
                   if (registry) {
                      echo "Tagging image ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
                      sh "docker tag ${image}:${imageTag} ${registry}${namespace}/${image}:${imageTag}"
