@@ -3,13 +3,16 @@
 HOSTIP="158.176.129.211"
 NODEPORT="30183"
 
+read -p 'NodePort:i  ' NODEPORT
+read -p 'Iterations: ' y
+
 echo "--------------------------------------------------------------------"
 echo "|                        Starting MQ Test                          |"
 echo "--------------------------------------------------------------------"
 
 
 x=1
-while [ $x -le 10 ]
+while [ $x -le y ]
 do
   sleep 1
   echo "Sending Message @ "$(date "+%H:%M:%S")
