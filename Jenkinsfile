@@ -11,7 +11,7 @@ def test = (env.TEST ?: "true").toBoolean()
 def image = (env.IMAGE ?: "cont-mq").trim()
 def baseimage = (env.BASEIMAGE ?: "ibmcom/mq").trim()
 def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
-def newtag  = (env.NEWTAG ?: null).trim() //"9.1.2.0-NEW"
+def newtag  = (env.NEWTAG ?: "").trim() //"9.1.2.0-NEW"
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
