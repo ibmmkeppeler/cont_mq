@@ -46,7 +46,7 @@ podTemplate(
             ]),
         containerTemplate(name: 'kubectl', image: 'icptest.icp:8500/ibmcom/kubectl:1.15.1', ttyEnabled: true, command: 'cat'),
         // containerTemplate(name: 'helm', image: 'icptest.icp:8500/ibmcom/helm:1.0.0', ttyEnabled: true, command: 'cat')
-        containerTemplate(name: 'helm', image: 'icptest.icp:8500/ibmcom/ibmtoos:1.0.0', ttyEnabled: true, command: 'cat')
+        containerTemplate(name: 'helm', image: 'icptest.icp:8500/ibmcom/ibmtools:1.0.0', ttyEnabled: true, command: 'cat')
     ],
     volumes: volumes
     ) {
