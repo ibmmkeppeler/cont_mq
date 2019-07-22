@@ -231,6 +231,14 @@ podTemplate(
                         echo "This build will be marked as a failure: halting after the deletion of the test namespace."
                       } else {
 		                  // slackSend (channel: slackResponse.threadId, color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> upgraded successfully.")
+                        if (multiInstance) {
+                          isReady = sh (script: "kubectl get pods ${tempHelmRelease}-ibm-mq-1 -namespace ${namespace} -o jsonpath='{.status.containerStatuses[0].ready}'", returnStdout: true).trim()
+                          if(isReady) {
+                            sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-1 -namespace ${namespace}", returnStdout: true)
+                            sleep 10
+                            sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-0 -namespace ${namespace}", returnStdout: true)
+                          }
+                        }
                       }
                       printFromFile("upgrade_attempt.txt")
             		    }
