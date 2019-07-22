@@ -44,9 +44,9 @@ podTemplate(
             envVars: [
                 containerEnvVar(key: 'DOCKER_API_VERSION', value: '1.23.0')
             ]),
-        // containerTemplate(name: 'kubectl', image: 'ibmcom/microclimate-utils:1901', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'kubectl', image: 'icptest.icp:8500/ibmcom/kubectl:1.15.1', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'helm', image: 'icptest.icp:8500/ibmcom/helm:1.0.0', ttyEnabled: true, command: 'cat')
+        // containerTemplate(name: 'helm', image: 'icptest.icp:8500/ibmcom/helm:1.0.0', ttyEnabled: true, command: 'cat')
+        containerTemplate(name: 'helm', image: 'icptest.icp:8500/ibmcom/ibmtoos:1.0.0', ttyEnabled: true, command: 'cat')
     ],
     volumes: volumes
     ) {
@@ -232,8 +232,9 @@ podTemplate(
                       } else {
 		                  // slackSend (channel: slackResponse.threadId, color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> upgraded successfully.")
                         if (multiInstance) {
-                          isReady = sh (script: "kubectl get pods ${tempHelmRelease}-ibm-mq-1 -namespace ${namespace} -o jsonpath='{.status.containerStatuses[0].ready}'", returnStdout: true).trim()
-                          if(isReady) {
+                          def isReady = sh (script: "kubectl get pods ${tempHelmRelease}-ibm-mq-1 -namespace ${namespace} -o jsonpath='{.status.containerStatuses[0].ready}'", returnStdout: true).trim()
+                          printTime("Is Pod in ReadyState: ${isReady}:")
+                          if(isReady  == 'false') {
                             sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-1 -namespace ${namespace}", returnStdout: true)
                             sleep 10
                             sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-0 -namespace ${namespace}", returnStdout: true)
