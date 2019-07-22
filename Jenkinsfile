@@ -218,7 +218,7 @@ podTemplate(
                       sh "sed -ie 's|repository:.*|repository: ${registry}${namespace}/${image}|g' values.yaml" 
                       if (newtag) imageTag = "${newtag}"
                       sh "sed -ie 's|tag:.*|tag: ${imageTag}|g' values.yaml" 
-                      def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --values values.yaml --namespace ${namespace}"
+                      def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --force --values values.yaml --namespace ${namespace}"
                       if (fileExists("chart/overrides.yaml")) {
                         upgradeCommand += " --values chart/overrides.yaml"
                       }
