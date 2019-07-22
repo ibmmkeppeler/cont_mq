@@ -237,8 +237,10 @@ podTemplate(
                         def isReady = sh (script: "kubectl get pods ${tempHelmRelease}-ibm-mq-1 --namespace ${namespace} -o jsonpath='{.status.containerStatuses[0].ready}'", returnStdout: true).trim()
                         printTime("Is Pod in ReadyState: ${isReady}:")
                         if(isReady  == 'false') {
+                          printTime("Restarting stand-by queue manger")
                           sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-1 --namespace ${namespace}", returnStdout: true)
                           sleep 10
+                          printTime("Restarting primary queue manger")
                           sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-0 --namespace ${namespace}", returnStdout: true)
                         }
                       }
