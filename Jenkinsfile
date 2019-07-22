@@ -9,9 +9,8 @@ def deploy = (env.DEPLOY ?: "true").toBoolean()
 def test = (env.TEST ?: "true").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
-def baseimage = (env.BASEIMAGE ?: "ibmcom/mq").trim()
+def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
 def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
-def newtag  = (env.NEWTAG ?: null) //"9.1.2.0-NEW"
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
@@ -91,7 +90,6 @@ podTemplate(
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
                   imageTag = "${basetag}"
-                  if (newtag) imageTag = "${newtag}"
                   def buildCommand = "docker build -t ${image}:${imageTag} "
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
                   // def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
@@ -216,9 +214,8 @@ podTemplate(
                       // The release is in RUNNING state. Attempt to upgrade
 		                  getValues = sh (script: "helm get values ${tempHelmRelease} --output yaml ${helmTlsOptions} > values.yaml", returnStatus: true)
                       sh "sed -ie 's|repository:.*|repository: ${registry}${namespace}/${image}|g' values.yaml" 
-                      if (newtag) imageTag = "${newtag}"
                       sh "sed -ie 's|tag:.*|tag: ${imageTag}|g' values.yaml" 
-                      def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --force --values values.yaml --namespace ${namespace}"
+                      def upgradeCommand = "helm upgrade ${tempHelmRelease} ${realChartFolder} --values values.yaml --namespace ${namespace}"
                       if (fileExists("chart/overrides.yaml")) {
                         upgradeCommand += " --values chart/overrides.yaml"
                       }
