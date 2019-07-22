@@ -234,12 +234,12 @@ podTemplate(
                       }
                       sleep 3
                       if (multiInstance) {
-                        def isReady = sh (script: "kubectl get pods ${tempHelmRelease}-ibm-mq-1 -namespace ${namespace} -o jsonpath='{.status.containerStatuses[0].ready}'", returnStdout: true).trim()
+                        def isReady = sh (script: "kubectl get pods ${tempHelmRelease}-ibm-mq-1 --namespace ${namespace} -o jsonpath='{.status.containerStatuses[0].ready}'", returnStdout: true).trim()
                         printTime("Is Pod in ReadyState: ${isReady}:")
                         if(isReady  == 'false') {
-                          sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-1 -namespace ${namespace}", returnStdout: true)
+                          sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-1 --namespace ${namespace}", returnStdout: true)
                           sleep 10
-                          sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-0 -namespace ${namespace}", returnStdout: true)
+                          sh (script: "kubectl delete pod {tempHelmRelease}-ibm-mq-0 --namespace ${namespace}", returnStdout: true)
                         }
                       }
                       printFromFile("upgrade_attempt.txt")
