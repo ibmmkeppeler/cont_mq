@@ -195,19 +195,19 @@ podTemplate(
 
 
                 container ('helm') {
-	                // Check if the release exists at all.
+	                printTime("Check if the release exists at all.")
                   isReleaseExists = sh(script: "helm list -q --namespace ${namespace} ${helmTlsOptions} | tr '\\n' ','", returnStdout: true)
                   if (isReleaseExists.contains("${tempHelmRelease}")) {
-                    // The release exists, check it's status.
+                    printTime("The release exists, check it's status.")
                     releaseStatus = sh(script: "helm status ${tempHelmRelease} -o json ${helmTlsOptions} | jq '.info.status.code'", returnStdout: true).trim()
                     if (releaseStatus != "1") {
-                      // The release is in FAILED state. Attempt to rollback.
+                      printTime("The release is in FAILED state. Attempt to rollback.")
                       releaseRevision = sh (script: "helm history ${tempHelmRelease} ${helmTlsOptions} | tail -1 | awk '{ print \$1}'", returnStdout: true).trim()
                       if (releaseRevision == "1") {
-                        // This is the only revision available - purge and proceed to reinstall.
+                        printTime("This is the only revision available - purge and proceed to reinstall.")
                         sh "helm del --purge ${tempHelmRelease} ${helmTlsOptions}"
                       } else {
-                        // There is a previous revision, rollback to it.
+                        printTime("There is a previous revision, rollback to it.")
                         releaseRevision = sh (script: "helm history ${tempHelmRelease} ${helmTlsOptions} | tail -2 | head -1 | awk '{ print \$1}'", returnStdout: true).trim()
                         sh "helm rollback ${tempHelmRelease} ${releaseRevision} ${helmTlsOptions}"
                       }
