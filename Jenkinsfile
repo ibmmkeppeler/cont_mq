@@ -27,7 +27,7 @@ def mqLicense = (env.MQLICENSE ?: "accept").trim()
 def serviceType = "NodePort"
 def queueManagerName = "QM1"
 def mqSecret = "mq-secret"
-def multiInstance = ("true").toBoolean()
+def multiInstance = env.MULTIINSTANCE ?: "true").toBoolean()
 
 def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 if (registrySecret) {
