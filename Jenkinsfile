@@ -228,7 +228,6 @@ podTemplate(
                       if (testUpgradeAttempt != 0) {
                         echo "Warning, did not upgrade the test release into the test namespace successfully, error code is: ${testUpgradeAttempt}"
                         echo "This build will be marked as a failure: halting after the deletion of the test namespace."
-                        // slackSend (channel: slackResponse.threadId, color: '#FF0000', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> upgrade failed.")
                       } else {
 		                  // slackSend (channel: slackResponse.threadId, color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> upgraded successfully.")
                       }
@@ -242,18 +241,12 @@ podTemplate(
                           sleep 10
                           printTime("Restarting primary queue manger")
                           sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-0 --namespace ${namespace}", returnStdout: true)
-                        } else {
-                          printTime("Restarting stand-by queue manger")
-                          sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-0 --namespace ${namespace}", returnStdout: true)
-                          sleep 10
-                          printTime("Restarting primary queue manger")
-                          sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-1 --namespace ${namespace}", returnStdout: true)
                         }
                       }
                       printFromFile("upgrade_attempt.txt")
             		    }
                   } else {
-		                printTime("The release does not exist, proceed and deploy a new release")
+		                // The release does not exist, proceed and deploy a new release
                     echo "Attempting to deploy the test release"
                     // def deployCommand = "helm install ${realChartFolder} --wait --set test=${test} --values pipeline.yaml --namespace ${namespace} --name ${tempHelmRelease}"
                     def deployCommand = "helm install ${realChartFolder} --set test=${test} --values pipeline.yaml --namespace ${namespace} --name ${tempHelmRelease}"
@@ -265,12 +258,11 @@ podTemplate(
                       deployCommand += helmTlsOptions
                     }
                     testDeployAttempt = sh(script: "${deployCommand} > deploy_attempt.txt", returnStatus: true)
+		                // slackSend (channel: "k8s_cont-adoption", color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> deployed successfully.")
+
                     if (testDeployAttempt != 0) {
-                       echo "Warning, did not deploy the ${tempHelmRelease} release into the ${namespace} namespace successfully, error code is: ${testDeployAttempt}"
-                       echo "This build will be marked as a failure."
-                      // slackSend (channel: "k8s_cont-adoption", color: '#FF0000', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> deploy failed.")
-                    } else {
-                      // slackSend (channel: "k8s_cont-adoption", color: '#199515', message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> deployed successfully.")
+                       echo "Warning, did not deploy the test release into the test namespace successfully, error code is: ${testDeployAttempt}"
+                       echo "This build will be marked as a failure: halting after the deletion of the test namespace."
                     }
                     printFromFile("deploy_attempt.txt")
                   }
@@ -285,7 +277,7 @@ podTemplate(
 
 def printTime(String message) {
    time = new Date().format("ddMMyy.HH:mm.ss", TimeZone.getTimeZone('Europe/Amsterdam'))
-   println "NOTIFICATION - $message: $time"
+   println "Timing, $message: $time"
 }
 
 def printFromFile(String fileName) {
