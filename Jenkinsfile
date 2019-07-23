@@ -56,7 +56,7 @@ podTemplate(
             def gitCommitMessage
             def fullCommitID
 
-	    def imageTag = ${basetag}
+	    def imageTag = null
 	    def helmInitialized = false // Lazily initialize Helm but only once
             // def slackResponse = slackSend(channel: "k8s_cont-adoption", message: "*$JOB_NAME*: <$BUILD_URL|Build #$BUILD_NUMBER> Has been started.")
 
@@ -89,6 +89,7 @@ podTemplate(
                   sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
+                  imageTag = "${basetag}"
                   def buildCommand = "docker build -t ${image}:${imageTag} "
                   buildCommand += "--label org.label-schema.schema-version=\"1.0\" "
                   // def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
