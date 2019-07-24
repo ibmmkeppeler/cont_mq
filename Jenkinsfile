@@ -84,8 +84,8 @@ podTemplate(
 	          stage('Scan') {
               container ('docker') {
 		            def imageLine = "${baseimage}:${basetag}"
-  		          writeFile file: 'mq_images', text: imageLine
-  		          anchore name: 'mq_images'
+  		          writeFile file: 'anchore_images', text: imageLine
+  		          anchore name: 'anchore_images'
 		          }
  	          }
             if (build) {
