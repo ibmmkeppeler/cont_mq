@@ -5,7 +5,7 @@ import groovy.json.JsonOutput;
 import groovy.json.JsonSlurperClassic;
 
 def build = (env.BUILD ?: "true").toBoolean()
-def deploy = (env.DEPLOY ?: "false").toBoolean()
+def deploy = (env.DEPLOY ?: "true").toBoolean()
 def test = (env.TEST ?: "false").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
@@ -15,11 +15,9 @@ def basetag = null
 if (dockerimage.contains(':')) {
   baseimage = dockerimage.substring(0, image.indexOf(':'))
   basetag = image.substring(image.lastIndexOf('/') + 1, image.length())
-  printTime("**** ${baseimage}:${basetag} *****")
 } else {
   baseimage = "${dockerimage}"
   basetag = 'latest'
-  printTime("**** ${baseimage}:${basetag} *****")
 }
 // def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
 // def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
@@ -39,7 +37,7 @@ def mqLicense = (env.MQLICENSE ?: "accept").trim()
 def serviceType = "NodePort"
 def queueManagerName = "QM1"
 def mqSecret = "mq-secret"
-def multiInstance = (env.MULTIINSTANCE ?: "false").toBoolean()
+def multiInstance = (env.MULTIINSTANCE ?: "true").toBoolean()
 
 def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 if (registrySecret) {
