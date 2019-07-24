@@ -81,6 +81,13 @@ podTemplate(
                   print "Error in Extract: " + ex.toString()
               }
 	          }
+	          stage('Scan') {
+              container ('docker') {
+		            def imageLine = "${baseimage}:${basetag}"
+  		          writeFile file: 'mq_images', text: imageLine
+  		          anchore name: 'mq_images'
+		          }
+ 	          }
             if (build) {
             stage('Build'){
               try {
