@@ -5,10 +5,11 @@ import groovy.json.JsonOutput;
 import groovy.json.JsonSlurperClassic;
 
 def build = (env.BUILD ?: "true").toBoolean()
-def deploy = (env.DEPLOY ?: "true").toBoolean()
-def test = (env.TEST ?: "true").toBoolean()
+def deploy = (env.DEPLOY ?: "false").toBoolean()
+def test = (env.TEST ?: "false").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
+def dockerimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim()
 def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
 def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
@@ -27,7 +28,7 @@ def mqLicense = (env.MQLICENSE ?: "accept").trim()
 def serviceType = "NodePort"
 def queueManagerName = "QM1"
 def mqSecret = "mq-secret"
-def multiInstance = (env.MULTIINSTANCE ?: "true").toBoolean()
+def multiInstance = (env.MULTIINSTANCE ?: "false").toBoolean()
 
 def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 if (registrySecret) {
@@ -86,6 +87,9 @@ podTemplate(
                 // checkout scm
                 container('docker') {
                   echo 'Set Base Image'
+                  echo "Dockerimage: ${dockerimage}"
+                  image = dockerimage.substring(0, url.indexOf(':'))
+                  echo "Image: ${image}"
                   sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
