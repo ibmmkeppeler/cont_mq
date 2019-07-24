@@ -88,7 +88,12 @@ podTemplate(
                 container('docker') {
                   echo 'Set Base Image'
                   echo "Dockerimage: ${dockerimage}"
-                  image = dockerimage.substring(0, image.indexOf(':'))
+                  if (image:.contains(':')) {
+                    image = dockerimage.substring(0, image.indexOf(':'))
+                    tag = image.substring(image.lastIndexOf('/') + 1, image.length())
+                  } else {
+                    tag = 'latest'
+                  }
                   echo "Image: ${image}"
                   sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
                   sh "cat Dockerfile"
