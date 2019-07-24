@@ -10,8 +10,15 @@ def test = (env.TEST ?: "false").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
 def dockerimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim()
-def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
-def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
+if (dockerimage.contains(':')) {
+  def baseimage = dockerimage.substring(0, image.indexOf(':'))
+  def basetag = image.substring(image.lastIndexOf('/') + 1, image.length())
+} else {
+  def baseimage = dockerimage
+  def basetag = 'latest'
+}
+// def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
+// def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
@@ -87,13 +94,6 @@ podTemplate(
                 // checkout scm
                 container('docker') {
                   echo 'Set Base Image'
-                  echo "Dockerimage: ${dockerimage}"
-                  if (image.contains(':')) {
-                    image = dockerimage.substring(0, image.indexOf(':'))
-                    tag = image.substring(image.lastIndexOf('/') + 1, image.length())
-                  } else {
-                    tag = 'latest'
-                  }
                   echo "Image: ${image}"
                   sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
                   sh "cat Dockerfile"
