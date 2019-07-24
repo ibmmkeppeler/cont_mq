@@ -6,7 +6,7 @@ import groovy.json.JsonSlurperClassic;
 
 def build = (env.BUILD ?: "true").toBoolean()
 def deploy = (env.DEPLOY ?: "true").toBoolean()
-def test = (env.TEST ?: "false").toBoolean()
+def test = (env.TEST ?: "true").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
 def dockerimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim()
