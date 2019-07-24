@@ -10,13 +10,15 @@ def test = (env.TEST ?: "false").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
 def dockerimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim()
+def baseimage = null
+def basetag = null
 if (dockerimage.contains(':')) {
-  def baseimage = dockerimage.substring(0, image.indexOf(':'))
-  def basetag = image.substring(image.lastIndexOf('/') + 1, image.length())
+  baseimage = dockerimage.substring(0, image.indexOf(':'))
+  basetag = image.substring(image.lastIndexOf('/') + 1, image.length())
   printTime("**** ${baseimage}:${basetag} *****")
 } else {
-  def baseimage = "${dockerimage}"
-  def basetag = 'latest'
+  baseimage = "${dockerimage}"
+  basetag = 'latest'
   printTime("**** ${baseimage}:${basetag} *****")
 }
 // def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
@@ -96,6 +98,7 @@ podTemplate(
                 // checkout scm
                 container('docker') {
                   echo 'Set Base Image'
+                  printTime("**** ${baseimage}:${basetag} *****")
                   sh "sed -ie 's|^FROM.*|FROM ${baseimage}:${basetag}|g' Dockerfile"
                   sh "cat Dockerfile"
                   echo 'Start Building Image'
