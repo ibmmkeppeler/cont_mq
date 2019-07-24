@@ -10,6 +10,7 @@ def test = (env.TEST ?: "true").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
 def dockerimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim()
+printTime("***** ${dockerimage} *****")
 def baseimage = null
 def basetag = null
 if (dockerimage.contains(':')) {
