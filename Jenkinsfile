@@ -88,7 +88,7 @@ podTemplate(
                 container('docker') {
                   echo 'Set Base Image'
                   echo "Dockerimage: ${dockerimage}"
-                  if (image:.contains(':')) {
+                  if (image.contains(':')) {
                     image = dockerimage.substring(0, image.indexOf(':'))
                     tag = image.substring(image.lastIndexOf('/') + 1, image.length())
                   } else {
