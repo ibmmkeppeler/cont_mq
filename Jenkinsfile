@@ -13,9 +13,11 @@ def dockerimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim
 if (dockerimage.contains(':')) {
   def baseimage = dockerimage.substring(0, image.indexOf(':'))
   def basetag = image.substring(image.lastIndexOf('/') + 1, image.length())
+  printTime("**** ${baseimage}:${basetag} *****")
 } else {
-  def baseimage = dockerimage
+  def baseimage = "${dockerimage}"
   def basetag = 'latest'
+  printTime("**** ${baseimage}:${basetag} *****")
 }
 // def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
 // def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
