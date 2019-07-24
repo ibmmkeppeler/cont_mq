@@ -9,19 +9,9 @@ def deploy = (env.DEPLOY ?: "true").toBoolean()
 def test = (env.TEST ?: "true").toBoolean()
 
 def image = (env.IMAGE ?: "cont-mq").trim()
-def dockerimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim()
-printTime("***** ${dockerimage} *****")
-def baseimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo:latest").trim()
+def baseimage = (env.DOCKER_TRIGGER_REPO_NAME ?: "mkeppel/mqdemo").trim()
 def basetag = (env.DOCKER_TRIGGER_TAG ?: "latest").trim()
-// if (dockerimage.contains(':')) {
-//  baseimage = dockerimage.substring(0, image.indexOf(':'))
-//  basetag = image.substring(image.lastIndexOf('/') + 1, image.length())
-//} else {
-//  baseimage = "${dockerimage}"
-//  basetag = 'latest'
-//}
-// def baseimage = (env.BASEIMAGE ?: "icptest.icp:8500/ibmcom/mq").trim()
-// def basetag = (env.BASETAG ?: "9.1.2.0-UBI").trim()
+printTime("***** ${baseimage}:${basetag} *****")
 def alwaysPullImage = (env.ALWAYS_PULL_IMAGE == null) ? true : env.ALWAYS_PULL_IMAGE.toBoolean()
 def registry = (env.REGISTRY ?: "icptest.icp:8500").trim()
 if (registry && !registry.endsWith('/')) registry = "${registry}/"
