@@ -81,15 +81,13 @@ podTemplate(
                   print "Error in Extract: " + ex.toString()
               }
 	          }
-/*------------------------
 	          stage('Scan'){
               container ('docker') {
 		            def imageLine = "${baseimage}:${basetag}"
   		          writeFile file: 'anchore_images', text: imageLine
-  		          anchore name: 'anchore_images'
+  		          anchore bailOnFail: false, bailOnPluginFail: false, name: 'anchore_images'
 		          }
  	          }
- ------------------------*/
            if (build) {
             stage('Build'){
               try {
