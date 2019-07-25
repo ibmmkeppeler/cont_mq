@@ -251,7 +251,14 @@ podTemplate(
                           sleep 10
                           printTime("Restarting primary queue manger")
                           sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-0 --namespace ${namespace}", returnStdout: true)
+                        } else {
+                          printTime("Restarting stand-by queue manger")
+                          sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-0 --namespace ${namespace}", returnStdout: true)
+                          sleep 10
+                          printTime("Restarting primary queue manger")
+                          sh (script: "kubectl delete pod ${tempHelmRelease}-ibm-mq-1 --namespace ${namespace}", returnStdout: true)
                         }
+
                       }
                       printFromFile("upgrade_attempt.txt")
             		    }
