@@ -4,6 +4,7 @@ import java.util.UUID
 import groovy.json.JsonOutput;
 import groovy.json.JsonSlurperClassic;
 
+def scan = (env.SCAN ?: "true").toBoolean()
 def build = (env.BUILD ?: "true").toBoolean()
 def deploy = (env.DEPLOY ?: "true").toBoolean()
 def test = (env.TEST ?: "true").toBoolean()
@@ -81,13 +82,20 @@ podTemplate(
                   print "Error in Extract: " + ex.toString()
               }
 	          }
-	          stage('Scan'){
-              container ('docker') {
-		            def imageLine = "${baseimage}:${basetag}"
-  		          writeFile file: 'anchore_images', text: imageLine
-  		          anchore bailOnFail: false, bailOnPluginFail: false, name: 'anchore_images'
-		          }
- 	          }
+            if (scan) {
+	            stage('Scan'){
+                try {
+                  container ('docker') {
+		                def imageLine = "${baseimage}:${basetag}"
+  		              writeFile file: 'anchore_images', text: imageLine
+  		              anchore bailOnFail: false, bailOnPluginFail: false, name: 'anchore_images'
+		              }
+                } catch(Exception ex) {
+                  print "Error in Scan stage: " + ex.toString()
+                  error("Error in Scan stage")
+                }
+ 	            }
+            }
            if (build) {
             stage('Build'){
               try {
